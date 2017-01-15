@@ -1,0 +1,4 @@
+[32m[0114 17:56:58 @logger.py:70][0m Argv: cifar10-densenet.py
+[32m[0114 17:56:58 @utils.py:98][0m TENSORPACK_DATASET not set, using /home/per-andre/Projects/tensorpack/tensorpack/dataflow/dataset for dataset.
+[32m[0114 17:58:47 @cifar.py:34][0m Found cifar10 data in /home/per-andre/Projects/tensorpack/tensorpack/dataflow/dataset/cifar10_data.
+[32m[0114 17:58:49 @config.py:55][0m [5m[31mWRN[0m [Deprecated] TrainConfig.dataset has been deprecated. Use TrainConfig.dataflow instead.

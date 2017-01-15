@@ -1,0 +1,6 @@
+[32m[0114 18:29:21 @logger.py:70][0m Argv: cifar10-densenet.py
+[32m[0114 18:29:21 @utils.py:98][0m TENSORPACK_DATASET not set, using /home/per-andre/Projects/tensorpack/tensorpack/dataflow/dataset for dataset.
+[32m[0114 18:29:21 @cifar.py:34][0m Found cifar10 data in /home/per-andre/Projects/tensorpack/tensorpack/dataflow/dataset/cifar10_data.
+[32m[0114 18:29:22 @cifar.py:34][0m Found cifar10 data in /home/per-andre/Projects/tensorpack/tensorpack/dataflow/dataset/cifar10_data.
+[32m[0114 18:29:23 @common.py:82][0m conv0 input: [None, 32, 32, 3]
+[32m[0114 18:29:23 @common.py:90][0m conv0 output: [None, 32, 32, 16]
