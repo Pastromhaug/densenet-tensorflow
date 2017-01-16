@@ -1,6 +1,9 @@
-a = ['a']
-def f(x):
-    x.append('b')
+import numpy as np
+a = range(100)
+num = (int(np.log(len(a))/np.log(2)))
+b = [-(2**i) for i in range(num)]
+c = [a[i] for i in b]
 print(a)
-f(a)
-print(a)
+print(num)
+print(b)
+print(c)

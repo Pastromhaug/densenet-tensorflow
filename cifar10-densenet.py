@@ -36,6 +36,7 @@ class Model(tp.ModelDesc):
     def _build_graph(self, input_vars):
         image, label = input_vars
         image = image / 128.0 - 1
+        lays = []
 
         def conv(name, l, channel, stride):
             return tp.Conv2D(name, l, channel, 3, stride=stride,
@@ -48,8 +49,7 @@ class Model(tp.ModelDesc):
                 c = tp.BatchNorm('bn1', l)
                 c = tf.nn.relu(c)
                 c = conv('conv1', c, self.growthRate, 1)
-                l = tf.concat(3, [c, l])
-            return l
+            return c
 
         def add_transition(name, l):
             shape = l.get_shape().as_list()
@@ -61,33 +61,81 @@ class Model(tp.ModelDesc):
                 l = tp.AvgPooling('pool', l, 2)
             return l
 
+        def get_inputs(lvl):
+            num = (int(np.log(len(lays))/np.log(2)))
+            logIdx = [-(2**i) for i in range(num)]
+            layLst = [lays[i] for i in logIdx]
+            if lvl == 0:
+                return [k[0] for k in layLst]
+            elif lvl == 1:
+                ret = []
+                for j,k in enumerate(layLst):
+                    if len(k) == 2:
+                        ret.append(k[1])
+                    else:
+                        name = "transitionLvl_1_num_"+str(j)
+                        k.append(add_transition(name, k[0]))
+                        ret.append(k[1])
+                return ret
+            else:
+                ret = []
+                for j,k in enumerate(layLst):
+                    if len(k) == 3:
+                        ret.append(k[2])
+                    elif len(k) == 2:
+                        name = "transitionLvl_2_num"+str(j)
+                        k.append(add_transition(name, k[1]))
+                        ret.append(k[2])
+                    elif len(k) == 1:
+                        name = "transitionLvl_1_num_"+str(j)
+                        k.append(add_transition(name, k[0]))
+                        name = "transitionLvl_2_num"+str(j)
+                        k.append(add_transition(name, k[1]))
+                        ret.append(k[2])
+                return ret
+
 
         def dense_net(name):
             l = conv('conv0', image, 16, 1)
+            lays.append(l)
             with tf.variable_scope('block1') as scope:
 
                 for i in range(self.N):
-                    l = add_layer('dense_layer.{}'.format(i), l)
-                l = add_transition('transition1', l)
+                    inp = get_inputs(0)
+                    l = add_layer('dense_layer.{}'.format(i), inp)
+                    lays.append([l])
+                inp = get_inputs(1)
+                l = add_transition('transition1', inp)
+                lays.append([None,l])
 
             with tf.variable_scope('block2') as scope:
 
                 for i in range(self.N):
-                    l = add_layer('dense_layer.{}'.format(i), l)
-                l = add_transition('transition2', l)
+                    inp = get_inputs(1)
+                    l = add_layer('dense_layer.{}'.format(i), inp)
+                    lays.append([None,l])
+                inp = get_inputs(2)
+                l = add_transition('transition2', inp)
+                lays.append([None,None,l])
 
             with tf.variable_scope('block3') as scope:
 
                 for i in range(self.N):
-                    l = add_layer('dense_layer.{}'.format(i), l)
-            l = tp.BatchNorm('bnlast', l)
+                    inp = get_inputs(2)
+                    l = add_layer('dense_layer.{}'.format(i), inp)
+                    lays.append([None,None,l])
+
+            inp = get_inputs(2)
+            l = tp.BatchNorm('bnlast', linp)
             l = tf.nn.relu(l)
             l = tp.GlobalAvgPooling('gap', l)
             logits = tp.FullyConnected('linear', l, out_dim=10, nl=tf.identity)
 
             return logits
-
+        print("lays")
+        print(lays)
         logits = dense_net("dense_net")
+        print(lays)
 
         prob = tf.nn.softmax(logits, name='output')
 
