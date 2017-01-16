@@ -43,6 +43,8 @@ class Model(tp.ModelDesc):
                           nl=tf.identity, use_bias=False,
                           W_init=tf.random_normal_initializer(stddev=np.sqrt(2.0/9/channel)))
         def add_layer(name, l):
+            print("l")
+            print(l)
             shape = l.get_shape().as_list()
             in_channel = shape[3]
             with tf.variable_scope(name) as scope:
@@ -63,10 +65,13 @@ class Model(tp.ModelDesc):
 
         def get_inputs(lvl):
             num = (int(np.log(len(lays))/np.log(2)))
-            logIdx = [-(2**i) for i in range(num)]
+            print("num",num)
+            print("len", len(lays))
+            logIdx = [-(2**i) for i in range(num+1)]
             layLst = [lays[i] for i in logIdx]
+            ret = []
             if lvl == 0:
-                return [k[0] for k in layLst]
+                ret =  [k[0] for k in layLst]
             elif lvl == 1:
                 ret = []
                 for j,k in enumerate(layLst):
@@ -76,7 +81,6 @@ class Model(tp.ModelDesc):
                         name = "transitionLvl_1_num_"+str(j)
                         k.append(add_transition(name, k[0]))
                         ret.append(k[1])
-                return ret
             else:
                 ret = []
                 for j,k in enumerate(layLst):
@@ -92,7 +96,7 @@ class Model(tp.ModelDesc):
                         name = "transitionLvl_2_num"+str(j)
                         k.append(add_transition(name, k[1]))
                         ret.append(k[2])
-                return ret
+            return tf.concat(3, ret)
 
 
         def dense_net(name):
