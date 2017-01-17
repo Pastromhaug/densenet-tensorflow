@@ -96,12 +96,16 @@ class Model(tp.ModelDesc):
                         name = "transitionLvl_2_num"+str(j)
                         k.append(add_transition(name, k[1]))
                         ret.append(k[2])
-            return tf.concat(3, ret)
+            print("ret")    
+            print(ret)
+            ret = tf.concat(3, ret)
+            print(ret)
+            return ret
 
 
         def dense_net(name):
             l = conv('conv0', image, 16, 1)
-            lays.append(l)
+            lays.append([l])
             with tf.variable_scope('block1') as scope:
 
                 for i in range(self.N):
