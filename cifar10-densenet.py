@@ -217,7 +217,7 @@ if __name__ == '__main__':
     parser.add_argument('--load', help='load model')
     parser.add_argument('--drop_1',default=150, help='Epoch to drop learning rate to 0.01.') # nargs='*' in multi mode
     parser.add_argument('--drop_2',default=225,help='Epoch to drop learning rate to 0.001')
-    parser.add_argument('--depth',default=40, help='The depth of densenet')
+    parser.add_argument('--depth',default=40, type=int, help='The depth of densenet')
     parser.add_argument('--max_epoch',default=300,help='max epoch')
     args = parser.parse_args()
 
