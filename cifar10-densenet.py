@@ -67,6 +67,7 @@ class Model(tp.ModelDesc):
             num = (int(np.log(len(lays))/np.log(2)))
             print("num",num)
             print("len", len(lays))
+            print("lvl",lvl)
             logIdx = [-(2**i) for i in range(num+1)]
             layLst = [lays[i] for i in logIdx]
             ret = []
@@ -96,7 +97,7 @@ class Model(tp.ModelDesc):
                         name = "transitionLvl_2_num"+str(j)
                         k.append(add_transition(name, k[1]))
                         ret.append(k[2])
-            print("ret")    
+            print("ret")
             print(ret)
             ret = tf.concat(3, ret)
             print(ret)
