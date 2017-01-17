@@ -43,36 +43,30 @@ class Model(tp.ModelDesc):
                           nl=tf.identity, use_bias=False,
                           W_init=tf.random_normal_initializer(stddev=np.sqrt(2.0/9/channel)))
         def add_layer(name, l):
-            print("l")
-            print(l)
+            # print(l)
             shape = l.get_shape().as_list()
             in_channel = shape[3]
             with tf.variable_scope(name) as scope:
                 c = tp.BatchNorm('bn1', l)
                 c = tf.nn.relu(c)
                 c = conv('conv1', c, self.growthRate, 1)
-            print(lays)
             return c
 
         def add_transition(name, l):
+            # print(l)
             shape = l.get_shape().as_list()
             in_channel = shape[3]
             with tf.variable_scope(name) as scope:
                 l = tp.BatchNorm('bn1', l)
                 l = tf.nn.relu(l)
-                l = tp.Conv2D('conv1', l, in_channel, 1, stride=1, use_bias=False, nl=tf.nn.relu)
+                l = tp.Conv2D('conv1', l, self.growthRate, 1, stride=1, use_bias=False, nl=tf.nn.relu)
                 l = tp.AvgPooling('pool', l, 2)
-            print(lays)
             return l
 
         def get_inputs(lvl):
             num = (int(np.log(len(lays))/np.log(2)))
-            print("num",num)
-            print("len", len(lays))
-            print("lvl",lvl)
             logIdx = [-(2**i) + len(lays) for i in range(num+1)]
-            print("logIdx")
-            print(logIdx)
+            # print(logIdx)
             layLst = [lays[i] for i in logIdx]
             ret = []
             if lvl == 0:
@@ -101,10 +95,8 @@ class Model(tp.ModelDesc):
                         name = "transitionLvl_2_num"+str(logIdx[j])
                         k.append(add_transition(name, k[1]))
                         ret.append(k[2])
-            print("ret")
-            print(ret)
+            print("rets",ret)
             ret = tf.concat(3, ret)
-            print(ret)
             return ret
 
 
@@ -115,7 +107,7 @@ class Model(tp.ModelDesc):
 
                 for i in range(self.N):
                     inp = get_inputs(0)
-                    l = add_layer('dense_layer.{}'.format(i), inp)
+                    l = add_layer('add_layer.{}'.format(i), inp)
                     lays.append([l])
                 inp = get_inputs(0)
                 l = add_transition('transition1', inp)
@@ -125,7 +117,7 @@ class Model(tp.ModelDesc):
 
                 for i in range(self.N):
                     inp = get_inputs(1)
-                    l = add_layer('dense_layer.{}'.format(i), inp)
+                    l = add_layer('add_layer.{}'.format(i+self.N), inp)
                     lays.append([None,l])
                 inp = get_inputs(1)
                 l = add_transition('transition2', inp)
@@ -135,7 +127,7 @@ class Model(tp.ModelDesc):
 
                 for i in range(self.N):
                     inp = get_inputs(2)
-                    l = add_layer('dense_layer.{}'.format(i), inp)
+                    l = add_layer('add_layer.{}'.format(i+2*self.N), inp)
                     lays.append([None,None,l])
 
             inp = get_inputs(2)
@@ -145,10 +137,7 @@ class Model(tp.ModelDesc):
             logits = tp.FullyConnected('linear', l, out_dim=10, nl=tf.identity)
 
             return logits
-        print("lays")
-        print(lays)
         logits = dense_net("dense_net")
-        print(lays)
 
         prob = tf.nn.softmax(logits, name='output')
 
