@@ -51,6 +51,7 @@ class Model(tp.ModelDesc):
                 c = tp.BatchNorm('bn1', l)
                 c = tf.nn.relu(c)
                 c = conv('conv1', c, self.growthRate, 1)
+            print(lays)
             return c
 
         def add_transition(name, l):
@@ -61,6 +62,7 @@ class Model(tp.ModelDesc):
                 l = tf.nn.relu(l)
                 l = tp.Conv2D('conv1', l, in_channel, 1, stride=1, use_bias=False, nl=tf.nn.relu)
                 l = tp.AvgPooling('pool', l, 2)
+            print(lays)
             return l
 
         def get_inputs(lvl):
@@ -68,7 +70,9 @@ class Model(tp.ModelDesc):
             print("num",num)
             print("len", len(lays))
             print("lvl",lvl)
-            logIdx = [-(2**i) for i in range(num+1)]
+            logIdx = [-(2**i) + len(lays) for i in range(num+1)]
+            print("logIdx")
+            print(logIdx)
             layLst = [lays[i] for i in logIdx]
             ret = []
             if lvl == 0:
@@ -79,7 +83,7 @@ class Model(tp.ModelDesc):
                     if len(k) == 2:
                         ret.append(k[1])
                     else:
-                        name = "transitionLvl_1_num_"+str(j)
+                        name = "transitionLvl_1_num_"+str(logIdx[j])
                         k.append(add_transition(name, k[0]))
                         ret.append(k[1])
             else:
@@ -88,13 +92,13 @@ class Model(tp.ModelDesc):
                     if len(k) == 3:
                         ret.append(k[2])
                     elif len(k) == 2:
-                        name = "transitionLvl_2_num"+str(j)
+                        name = "transitionLvl_2_num"+str(logIdx[j])
                         k.append(add_transition(name, k[1]))
                         ret.append(k[2])
                     elif len(k) == 1:
-                        name = "transitionLvl_1_num_"+str(j)
+                        name = "transitionLvl_1_num_"+str(logIdx[j])
                         k.append(add_transition(name, k[0]))
-                        name = "transitionLvl_2_num"+str(j)
+                        name = "transitionLvl_2_num"+str(logIdx[j])
                         k.append(add_transition(name, k[1]))
                         ret.append(k[2])
             print("ret")
@@ -113,7 +117,7 @@ class Model(tp.ModelDesc):
                     inp = get_inputs(0)
                     l = add_layer('dense_layer.{}'.format(i), inp)
                     lays.append([l])
-                inp = get_inputs(1)
+                inp = get_inputs(0)
                 l = add_transition('transition1', inp)
                 lays.append([None,l])
 
@@ -123,7 +127,7 @@ class Model(tp.ModelDesc):
                     inp = get_inputs(1)
                     l = add_layer('dense_layer.{}'.format(i), inp)
                     lays.append([None,l])
-                inp = get_inputs(2)
+                inp = get_inputs(1)
                 l = add_transition('transition2', inp)
                 lays.append([None,None,l])
 
@@ -135,7 +139,7 @@ class Model(tp.ModelDesc):
                     lays.append([None,None,l])
 
             inp = get_inputs(2)
-            l = tp.BatchNorm('bnlast', linp)
+            l = tp.BatchNorm('bnlast', inp)
             l = tf.nn.relu(l)
             l = tp.GlobalAvgPooling('gap', l)
             logits = tp.FullyConnected('linear', l, out_dim=10, nl=tf.identity)
