@@ -26,7 +26,7 @@ class Model(tp.ModelDesc):
     def __init__(self, depth):
         super(Model, self).__init__()
         self.N = int((depth - 4)  / 3)
-        self.growthRate =12
+        self.growthRate =40
 
     def _get_input_vars(self):
         return [tp.InputVar(tf.float32, [None, 32, 32, 3], 'input'),
@@ -229,5 +229,5 @@ if __name__ == '__main__':
         config.session_init = SaverRestore(args.load)
     if args.gpu:
         config.nr_tower = len(args.gpu.split(','))
-    # tp.SyncMultiGPUTrainer(config).train()
-    tp.SimpleTrainer(config).train()
+    tp.SyncMultiGPUTrainer(config).train()
+    #tp.SimpleTrainer(config).train()

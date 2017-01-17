@@ -1,6 +1,9 @@
 *.log
+*.swp
 *.png
 *.json
 *.txt
 *.pyc
-
+*checkpoint
+*.index
+train_log/*

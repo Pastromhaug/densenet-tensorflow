@@ -1,4 +1,0 @@
-[32m[0114 18:27:36 @logger.py:70][0m Argv: cifar10-densenet.py
-[32m[0114 18:27:36 @utils.py:98][0m TENSORPACK_DATASET not set, using /home/per-andre/Projects/tensorpack/tensorpack/dataflow/dataset for dataset.
-[32m[0114 18:27:36 @cifar.py:34][0m Found cifar10 data in /home/per-andre/Projects/tensorpack/tensorpack/dataflow/dataset/cifar10_data.
-[32m[0114 18:27:37 @cifar.py:34][0m Found cifar10 data in /home/per-andre/Projects/tensorpack/tensorpack/dataflow/dataset/cifar10_data.
